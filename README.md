@@ -1,7 +1,17 @@
 # Stylizing 3D Gaussian Splatting Rendering
 Anurag Parcha<br>
+<img src="assets/PipelineVisual.png" />
+<br>
+![](teaser.gif)
+<br>
+![](assets/ferns_s5.gif)
+![](assets/trot.gif)
+![](assets/LossWithStyleFeatures_LargerWeight_lower.gif)
 
 This work is built on top of the "3D Gaussian Splatting for Real-Time Radiance Field Rendering" work by Bernhard Kerbl, Georgios Kopanas, Thomas Leimkühler and George Drettakis. The repository to their work is: https://github.com/An-u-rag/stylized-gaussian-splatting. You can also find their paper here: https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/3d_gaussian_splatting_high.pdf. And their project page [here](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/).
+
+
+Link to presentation: [Video]{https://www.youtube.com/watch?v=cNuRqeYBR-k}
 
 
 <section class="section" id="BibTeX">
