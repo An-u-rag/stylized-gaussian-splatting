@@ -11,7 +11,7 @@ Anurag Parcha<br>
 This work is built on top of the "3D Gaussian Splatting for Real-Time Radiance Field Rendering" work by Bernhard Kerbl, Georgios Kopanas, Thomas Leimkühler and George Drettakis. The repository to their work is: https://github.com/An-u-rag/stylized-gaussian-splatting. You can also find their paper here: https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/3d_gaussian_splatting_high.pdf. And their project page [here](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/).
 
 
-Link to presentation: [Video]{https://www.youtube.com/watch?v=cNuRqeYBR-k}
+Link to presentation: [Video](https://www.youtube.com/watch?v=cNuRqeYBR-k)
 
 
 <section class="section" id="BibTeX">
@@ -35,7 +35,7 @@ Clone the repository using:
 ```
 git clone https://github.com/An-u-rag/stylized-gaussian-splatting.git --recursive
 ```
-All the requirements are the same as the one for 3DGS with no urther additions. Requirements can be seen [here]{https://github.com/graphdeco-inria/gaussian-splatting} or [this]{https://www.youtube.com/watch?v=UXtuigy_wYc} video tutorial can be followed for ease.
+All the requirements are the same as the one for 3DGS with no urther additions. Requirements can be seen [here](https://github.com/graphdeco-inria/gaussian-splatting) or [this](https://www.youtube.com/watch?v=UXtuigy_wYc) video tutorial can be followed for ease.
 
 An environment.yml file is also provided to setup conda environment if needed. Create a new conda environment using below commands:
 ```
@@ -44,16 +44,16 @@ conda env create --file environment.yml
 conda activate stylegs
 ```
 
-If you encounter pip install errors, follow this [issue]{https://github.com/graphdeco-inria/gaussian-splatting/issues/148#issuecomment-1699465914} then run the following else skip:
+If you encounter pip install errors, follow this [issue](https://github.com/graphdeco-inria/gaussian-splatting/issues/148#issuecomment-1699465914) then run the following else skip:
 ```
 pip install submodules\diff-gaussian-rasterization
 pip install submodules\simple-knn
 ```
 
 # To stylize pre-reconstructed gaussian splats
-1. First download the datasets of multi view images from [here]{https://drive.google.com/file/d/1PDmtVKgfoLoJpNTrvFBh6NLah3j-04oL/view?usp=sharing}, unzip it and place the data folder into the root of this repo.
-2. There are some pre reconstructed gaussian splats of scenes in this [link]{https://drive.google.com/file/d/1mpkHldrWK_PYh8iA8vs8GJyJzQWwXbkp/view?usp=sharing}. Download this folder into the root of this repository similar to step 1 to be used for training stylization.
-3. Download the style images for stylization [here]{https://drive.google.com/file/d/1b118DXuFgPAihHrwnknvM09ev2aKga2P/view?usp=sharing} and place this folder into the root repository.
+1. First download the datasets of multi view images from [here](https://drive.google.com/file/d/1PDmtVKgfoLoJpNTrvFBh6NLah3j-04oL/view?usp=sharing), unzip it and place the data folder into the root of this repo.
+2. There are some pre reconstructed gaussian splats of scenes in this [link](https://drive.google.com/file/d/1mpkHldrWK_PYh8iA8vs8GJyJzQWwXbkp/view?usp=sharing). Download this folder into the root of this repository similar to step 1 to be used for training stylization.
+3. Download the style images for stylization [here](https://drive.google.com/file/d/1b118DXuFgPAihHrwnknvM09ev2aKga2P/view?usp=sharing) and place this folder into the root repository.
 3. Then run the below code from the root of this repository to stylize the reconstructed gaussian splat. 
 ```
 python train.py -s data/ferns --checkpoint_iterations 31000 32000 33000 --save_iterations 31000 32000 33000 --style_path style/s5.png --stylize_iter_start 30001 --data_device cpu --iterations 33000 --start_checkpoint preReconScenes/ferns_hq/chkpnt30000.pth --model_path output/ferns_s5
