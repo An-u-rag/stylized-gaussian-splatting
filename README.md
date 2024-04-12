@@ -23,7 +23,7 @@ This work is built on top of the "3D Gaussian Splatting for Real-Time Radiance F
 # Requirements
 Clone the repository using: 
 ```
-git clone https://github.com/An-u-rag/stylized-gaussian-splatting.git
+git clone https://github.com/An-u-rag/stylized-gaussian-splatting.git --recursive
 ```
 All the requirements are the same as the one for 3DGS with no urther additions. Requirements can be seen [here]{https://github.com/graphdeco-inria/gaussian-splatting} or [this]{https://www.youtube.com/watch?v=UXtuigy_wYc} video tutorial can be followed for ease.
 
