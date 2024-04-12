@@ -27,7 +27,10 @@ git clone https://github.com/An-u-rag/stylized-gaussian-splatting.git
 ```
 All the requirements are the same as the one for 3DGS with no urther additions. Requirements can be seen [here]{https://github.com/graphdeco-inria/gaussian-splatting} or [this]{https://www.youtube.com/watch?v=UXtuigy_wYc} video tutorial can be followed for ease.
 
-An environment.yml file is also provided to setup conda environment if needed.
+An environment.yml file is also provided to setup conda environment if needed. Create a new conda environment using belwo command:
+```
+conda create --name stylegs --file environment.yml
+```
 
 # To stylize pre-reconstructed gaussian splats
 1. First download the datasets of multi view images from [here]{https://drive.google.com/file/d/1PDmtVKgfoLoJpNTrvFBh6NLah3j-04oL/view?usp=sharing}, unzip it and place the data folder into the root of this repo.
