@@ -30,7 +30,7 @@ All the requirements are the same as the one for 3DGS with no urther additions. 
 An environment.yml file is also provided to setup conda environment if needed. Create a new conda environment using belwo command:
 ```
 SET DISTUTILS_USE_SDK=1 # Windows only
-conda create --name stylegs --file environment.yml
+conda env create --file environment.yml
 conda activate stylegs
 ```
 
