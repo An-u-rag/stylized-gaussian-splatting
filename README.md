@@ -27,11 +27,17 @@ git clone https://github.com/An-u-rag/stylized-gaussian-splatting.git --recursiv
 ```
 All the requirements are the same as the one for 3DGS with no urther additions. Requirements can be seen [here]{https://github.com/graphdeco-inria/gaussian-splatting} or [this]{https://www.youtube.com/watch?v=UXtuigy_wYc} video tutorial can be followed for ease.
 
-An environment.yml file is also provided to setup conda environment if needed. Create a new conda environment using belwo command:
+An environment.yml file is also provided to setup conda environment if needed. Create a new conda environment using below commands:
 ```
 SET DISTUTILS_USE_SDK=1 # Windows only
 conda env create --file environment.yml
 conda activate stylegs
+```
+
+If you encounter pip install errors, follow this [issue]{https://github.com/graphdeco-inria/gaussian-splatting/issues/148#issuecomment-1699465914} then run the following else skip:
+```
+pip install submodules\diff-gaussian-rasterization
+pip install submodules\simple-knn
 ```
 
 # To stylize pre-reconstructed gaussian splats
