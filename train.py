@@ -14,7 +14,7 @@ import torch
 import torch.nn as nn
 from random import randint
 from PIL import Image
-from utils.loss_utils import l1_loss, ssim
+from utils.loss_utils import l1_loss, l2_loss, ssim
 from gaussian_renderer import render, network_gui
 import sys
 from scene import Scene, GaussianModel
@@ -26,14 +26,14 @@ from argparse import ArgumentParser, Namespace
 from arguments import ModelParams, PipelineParams, OptimizationParams
 import torchvision.transforms as transforms
 from torchvision.models import vgg19, VGG19_Weights
-from utils.loss_utils import StyleLoss, gram_matrix, Normalization
+from utils.loss_utils import StyleLoss, gram_matrix, Normalization, StyleLossAdaIn
 try:
     from torch.utils.tensorboard import SummaryWriter
     TENSORBOARD_FOUND = True
 except ImportError:
     TENSORBOARD_FOUND = False
 
-def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from, style_image=None):
+def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from, style_image=None, stylize_iter_start=None):
     first_iter = 0
     tb_writer = prepare_output_and_logger(dataset)
     gaussians = GaussianModel(dataset.sh_degree)
@@ -52,17 +52,17 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
     # Weights of Content and Style Loss
     w_c = 1
-    w_s = 1000
-    w_s_to = 10
-    w_s_start_iter = 25001
-    w_s_mult_rate = (w_s_to / w_s) ** (1 / (opt.iterations - w_s_start_iter + 1))
-    #w_s_mult_rate = 1
-    content_freeze = True
+    w_s = 100000
     # Style Device
     style_device = "cuda"
 
     # Import VGG model to extract features
-    if style_image!=None:
+    if style_image!=None and stylize_iter_start!=None:
+        w_s_to = 100000
+        w_s_start_iter = stylize_iter_start
+        w_s_mult_rate = (w_s_to / w_s) ** (1 / (opt.iterations - w_s_start_iter + 1))
+        #w_s_mult_rate = 1
+        content_freeze = True
         cnn = vgg19(weights=VGG19_Weights.DEFAULT).features.eval().to(style_device)
         encoder_normalization_mean = torch.tensor([0.485, 0.456, 0.406], device="cuda")
         encoder_normalization_std = torch.tensor([0.229, 0.224, 0.225], device="cuda")
@@ -88,15 +88,14 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             if name in style_layers:
                 # add style loss:
                 target_feature = encoder(style_image.unsqueeze(0).to(style_device)).detach()
-                style_loss = StyleLoss(target_feature)
+                style_loss = StyleLossAdaIn(target_feature)
                 encoder.add_module("style_loss_{}".format(i), style_loss)
                 style_losses.append(style_loss)
-        # now we trim off the layers after the last content and style losses
+        # now we trim off the layers after the last style losses
         for i in range(len(encoder) - 1, -1, -1):
-            if isinstance(encoder[i], StyleLoss):
+            if isinstance(encoder[i], StyleLossAdaIn):
                 break
         encoder = encoder[:(i + 1)]
-        print("Style Encoder Model: ", encoder)
 
     viewpoint_stack = None
     ema_loss_for_log = 0.0
@@ -149,12 +148,14 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
         # STYLE LOSS GRAM MATRIX LOSS
         style_loss = 0
-        if style_image!=None and iteration >= w_s_start_iter:
+        if style_image!=None and iteration > w_s_start_iter:
             if content_freeze:
                 content_freeze = False
                 print("Freezing content parameters!")
-                gaussians.freeze_content_params(names=["xyz", "opacity", "rotation", "f_dc"])
-                print(gaussians.optimizer)
+                gaussians.freeze_params(freeze=["opacity", "rotation", "scaling", "xyz"], unfreeze=["f_rest", "f_dc"])
+                print("Increasing Spherical Harmonics degree")
+                gaussians.oneupSHdegree()
+                # gaussians.reset_colorfeatures()
                 for group in gaussians.optimizer.param_groups:
                     print(f"Parameter Group: {group['name']}")
                     for param in group['params']:
@@ -292,6 +293,7 @@ if __name__ == "__main__":
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--checkpoint_iterations", nargs="+", type=int, default=[])
     parser.add_argument("--start_checkpoint", type=str, default = None)
+    parser.add_argument("--stylize_iter_start", type=int, default=None)
 
     parser.add_argument("--style_path", type=str, default=None) # Style Image Path
     args = parser.parse_args(sys.argv[1:])
@@ -316,7 +318,7 @@ if __name__ == "__main__":
     # Start GUI server, configure and run training
     network_gui.init(args.ip, args.port)
     torch.autograd.set_detect_anomaly(args.detect_anomaly)
-    training(lp.extract(args), op.extract(args), pp.extract(args), args.test_iterations, args.save_iterations, args.checkpoint_iterations, args.start_checkpoint, args.debug_from, style_image)
+    training(lp.extract(args), op.extract(args), pp.extract(args), args.test_iterations, args.save_iterations, args.checkpoint_iterations, args.start_checkpoint, args.debug_from, style_image, args.stylize_iter_start)
 
     # All done
     print("\nTraining complete.")

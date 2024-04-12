@@ -85,6 +85,7 @@ class StyleLoss(nn.Module):
         G = gram_matrix(input)
         self.loss = F.mse_loss(G, self.target)
         return input
+
     
 class Normalization(nn.Module):
     def __init__(self, mean, std):
@@ -98,3 +99,41 @@ class Normalization(nn.Module):
     def forward(self, img):
         # normalize ``img``
         return (img - self.mean) / self.std
+    
+class StyleLossAdaIn(nn.Module):
+    def __init__(self, target_feature):
+        super(StyleLossAdaIn, self).__init__()
+        self.style_feature = target_feature
+        self.target = gram_matrix(target_feature).detach()
+
+    def forward(self, render):
+        # print("SHAPES AT ADAIN: ", self.target_feature.shape, render.shape)
+        style_mean, style_std, content_mean, content_std, style_transformed = adain(render, self.style_feature)
+        # print("SHAPE AFTER ADAIN: ", style_transformed.shape)
+        adain_content_loss = l2_loss(style_mean, content_mean) + l2_loss(style_std, content_std)
+        G = gram_matrix(style_transformed)
+        adain_style_loss = l2_loss(G, self.target)
+        #adain_style_loss = l2_loss(style_transformed, self.style_feature)
+        self.loss = (1 * adain_content_loss) + (10 * adain_style_loss)
+        # print("Loss: ", self.loss)
+        return render
+
+def adain(content_feat, style_feat):
+    assert (content_feat.size()[:2] == style_feat.size()[:2])
+    size = content_feat.size()
+    style_mean, style_std = calc_mean_std(style_feat)
+    content_mean, content_std = calc_mean_std(content_feat)
+    normalized_feat = (content_feat - content_mean.expand(
+        size)) / content_std.expand(size)
+    return (style_mean, style_std, content_mean, content_std, normalized_feat * style_std.expand(size) + style_mean.expand(size))
+
+
+def calc_mean_std(feat, eps=1e-5):
+    # eps is a small value added to the variance to avoid divide-by-zero.
+    size = feat.size()
+    assert (len(size) == 4)
+    N, C = size[:2]
+    feat_var = feat.view(N, C, -1).var(dim=2) + eps
+    feat_std = feat_var.sqrt().view(N, C, 1, 1)
+    feat_mean = feat.view(N, C, -1).mean(dim=2).view(N, C, 1, 1)
+    return feat_mean, feat_std

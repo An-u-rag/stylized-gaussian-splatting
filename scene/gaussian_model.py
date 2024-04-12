@@ -182,12 +182,15 @@ class GaussianModel:
                 param_group['lr'] = lr
                 return lr
             
-    def freeze_content_params(self, names):
+    def freeze_params(self, freeze, unfreeze):
         ''' Freeze parameters '''
         for param_group in self.optimizer.param_groups:
-            if param_group["name"] in names:
+            if param_group["name"] in freeze:
                 for param in param_group['params']:
                     param.requires_grad = False
+            if param_group["name"] in unfreeze:
+                for param in param_group['params']:
+                    param.requires_grad = True
 
     def construct_list_of_attributes(self):
         l = ['x', 'y', 'z', 'nx', 'ny', 'nz']
@@ -226,6 +229,16 @@ class GaussianModel:
         opacities_new = inverse_sigmoid(torch.min(self.get_opacity, torch.ones_like(self.get_opacity)*0.01))
         optimizable_tensors = self.replace_tensor_to_optimizer(opacities_new, "opacity")
         self._opacity = optimizable_tensors["opacity"]
+    
+    def reset_colorfeatures(self):
+        feats_dc = torch.rand_like(self._features_dc)
+        feats_rest = torch.rand_like(self._features_rest)
+        optimizable_tensors1 = self.replace_tensor_to_optimizer(feats_dc, "f_dc")
+        self._features_dc = optimizable_tensors1["f_dc"]
+        optimizable_tensors2 = self.replace_tensor_to_optimizer(feats_rest, "f_rest")
+        self._features_rest = optimizable_tensors2["f_rest"]
+        # print("After Reset: ", self._features_dc.shape)
+        # print("After Reset: ", self._features_rest.shape)
 
     def load_ply(self, path):
         plydata = PlyData.read(path)
