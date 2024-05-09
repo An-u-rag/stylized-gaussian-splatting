@@ -1,4 +1,4 @@
-# Stylizing 3D Gaussian Splatting Rendering
+# Direct Gaussian Style Optimization (DGSO): Stylizing 3D Gaussian Splats
 Anurag Parcha<br>
 <img src="assets/PipelineVisual.png" />
 <br>
